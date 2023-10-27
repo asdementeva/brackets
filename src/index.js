@@ -1,28 +1,33 @@
 module.exports = function check(str, bracketsConfig) {
-   const stack = [];
+  const stack = [];
   const openBrackets = new Set();
-  const bracketMap = new Map();
+  const closeBracketToOpenBracket = {};
 
   for (const [open, close] of bracketsConfig) {
     openBrackets.add(open);
-    bracketMap.set(close, open);
+    closeBracketToOpenBracket[close] = open;
   }
 
   for (const char of str) {
     if (openBrackets.has(char)) {
+      // Если текущий символ - открывающая скобка, добавляем ее в стек
       stack.push(char);
     } else {
+      // Если текущий символ - закрывающая скобка
       if (stack.length === 0) {
-        return false; // Unmatched closing bracket
+        // Если стек пуст, то нет соответствующей открывающей скобки
+        return false;
       }
 
-      const top = stack.pop();
-      if (top !== bracketMap.get(char)) {
-        return false; // Mismatched brackets
+      const lastOpenBracket = stack.pop();
+      if (lastOpenBracket !== closeBracketToOpenBracket[char]) {
+        // Проверяем, соответствует ли текущая закрывающая скобка последней открывающей
+        return false;
       }
     }
   }
 
-  return stack.length === 0; // Stack should be empty for a valid sequence
+  // Если после обхода строки стек не пуст, то есть непарные открывающие скобки
+  return stack.length === 0;
 
 }
